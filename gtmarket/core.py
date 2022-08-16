@@ -748,6 +748,13 @@ class OrderProducts(ezr.pickle_cache_mixin):
         return df
 
     @ezr.cached_container
+    def df_raw(self):
+        """
+        Just an alias to be consistent with other loaders
+        """
+        return self.df_order_products_raw
+
+    @ezr.cached_container
     def df_order_products_all(self):
         df = self.df_order_products_raw
 

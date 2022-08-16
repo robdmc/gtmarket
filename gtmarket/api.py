@@ -39,15 +39,15 @@ class GTM:
     Every object in the api is lazy loaded through a descriptor.  The actual
     attributes returned are classes.
     """
-    OrderProducts = Importable('simbiz.live_opps', 'OrderProducts')
-    OppLoader = Importable('simbiz.live_opps', 'OppLoader')
-    AccountLoader = Importable('simbiz.live_opps', 'AccountLoader')
-    OppHistoryLoader = Importable('simbiz.live_opps', 'OppHistoryLoader')
-    PipeStats = Importable('simbiz.live_opps', 'PipeStats')
-    ModelParams = Importable('simbiz.predictor.predictor', 'ModelParams')
-    ModelParamsHist = Importable('simbiz.predictor.predictor', 'ModelParamsHist')
-    SDRTeam = Importable('simbiz.predictor.predictor', 'SDRTeam')
-    Deals = Importable('simbiz.predictor.predictor', 'Deals')
+    OrderProducts = Importable('gtmarket.core', 'OrderProducts')
+    OppLoader = Importable('gtmarket.core', 'OppLoader')
+    AccountLoader = Importable('gtmarket.core', 'AccountLoader')
+    OppHistoryLoader = Importable('gtmarket.core', 'OppHistoryLoader')
+    PipeStats = Importable('gtmarket.core', 'PipeStats')
+    ModelParams = Importable('gtmarket.predictor', 'ModelParams')
+    ModelParamsHist = Importable('gtmarket.predictor', 'ModelParamsHist')
+    SDRTeam = Importable('gtmarket.predictor', 'SDRTeam')
+    Deals = Importable('gtmarket.predictor', 'Deals')
 
     # This allows from gtmarket.gtm import * to be used
     __all__ = list(set(vars().keys()) - {'__module__', '__qualname__', 'importlib', 'sys', 'Importable'})
