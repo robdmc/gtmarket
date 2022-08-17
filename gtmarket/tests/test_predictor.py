@@ -47,12 +47,6 @@ class CachedObjects:
         # deals.get_predicted_revenue(starting, ending)
         return ps
 
-# class ModelParamsSerializationTest(TestCase):
-#     def test_round_trip(self):
-#         mp = ModelParams()
-#         text = mp.to_json()
-#         mp2 = 
-#         print('\n\ntesting nothing')
 
 class ModelParamsLiveTest(TestCase):
     FITTED_ATTRIBUTES = [
