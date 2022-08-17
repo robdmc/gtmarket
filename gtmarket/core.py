@@ -708,8 +708,6 @@ class TestPipeStats(TestCase):
 
 
 class OrderProducts(ezr.pickle_cache_mixin):
-    #TODO No idea what warn is for
-    # WARN = True
 
     GRACE_PERIOD_DAYS = 15
     EPOCH = pd.Timestamp('1/1/2020')
@@ -1269,20 +1267,20 @@ class OrderProducts(ezr.pickle_cache_mixin):
 
 class AccountLoader(ezr.pickle_cache_mixin):
     pkc = ezr.pickle_cache_state('reset')
-    
+
     @ezr.pickle_cached_container()
     def df_raw(self):
         sfdc = ezr.SalesForceReport()
         df = sfdc.get_report(
-            '00O4O000004AjoX', 
-            slugify=True, 
+            '00O4O000004AjoX',
+            slugify=True,
             date_fields=[
                 'last_modified_date',
                 'date_account_was_round_robined',
                 'last_sales_activity_date',
             ])
         return df
-    
+
     @ezr.cached_container
     def df(self):
         return self.df_raw
