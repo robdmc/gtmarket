@@ -585,9 +585,9 @@ class ModelParamsHist:
 
 
 class SDRTeam:
-    def __init__(self, model_params=None, use_default_segment_allocation=False):
+    def __init__(self, model_params=None, use_default_segment_allocation=False, use_pg=False):
         if model_params is None:
-            model_params = ModelParamsHist().get_latest()
+            model_params = ModelParamsHist(use_pg=use_pg).get_latest()
         self.params = deepcopy(model_params)
         if use_default_segment_allocation:
             self.params.segment_allocation = self.params.default_segment_allocation
@@ -700,7 +700,7 @@ class SDRTeam:
 
 
 class Deals:
-    def __init__(self, starting=None, ending_exclusive=None, include_sales_expansion=True, model_params=None):
+    def __init__(self, starting=None, ending_exclusive=None, include_sales_expansion=True, model_params=None, use_pg=False):
         import pandas as pd
         today = fleming.floor(datetime.datetime.now(), day=1)
         next_year = today + relativedelta(years=1)
@@ -713,13 +713,14 @@ class Deals:
         self.ending_exclusive = pd.Timestamp(ending_exclusive)
         self._supplied_model_params = model_params
         self.include_sales_expansion = include_sales_expansion
+        self.use_pg = use_pg
 
     @ezr.cached_property
     def model_params(self):
         if self._supplied_model_params is not None:
             mp = self._supplied_model_params
         else:
-            mph = ModelParamsHist()
+            mph = ModelParamsHist(use_pg=self.use_pg)
             mp = mph.get_latest(as_of=self.starting)
 
         return mp
@@ -763,7 +764,7 @@ class Deals:
 
     def _get_creation_functions(self):
         creation_function_list = []
-        sdr = SDRTeam(self.model_params)
+        sdr = SDRTeam(self.model_params, use_pg=self.use_pg)
 
         def non_zero_factory(w, alloc):
             def gamma_w(t):
