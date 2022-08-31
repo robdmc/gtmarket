@@ -522,10 +522,17 @@ class ModelParamsHist:
         '/Users/rob/Dropbox/ambition_stuff/sales_predictor_param_history/param_history2.sqlite'
     )
 
-    def __init__(self, sqlite_file=None):
+    def __init__(self, sqlite_file=None, use_pg=False):
         if sqlite_file is None:
             sqlite_file = self.DEFAULT_HISTORY_FILE
         self.sqlite_file = sqlite_file
+        self.use_pg = use_pg
+
+    def get_mini_model(self):
+        if self.use_pg:
+            return ezr.MiniModelPG(overwrite=False, read_only=False)
+        else:
+            return ezr.MiniModelSqlite(self.sqlite_file)
 
     def store(self, model_params_obj):
         import pandas as pd
@@ -537,13 +544,13 @@ class ModelParamsHist:
             'data': [data],
         }
         df = pd.DataFrame(cols)
-        mm = ezr.MiniModelSqlite(self.sqlite_file)
+        mm = self.get_mini_model()
         mm.upsert('model_params', ['utc_seconds'], df)
 
         return self
 
     def get_history(self):
-        mm = ezr.MiniModelSqlite(self.sqlite_file)
+        mm = self.get_mini_model()
         df = mm.tables.model_params.df
         if not df.empty:
             df['time'] = ezr.pandas_utc_seconds_to_time(df.utc_seconds)
