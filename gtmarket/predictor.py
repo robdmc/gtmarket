@@ -549,9 +549,14 @@ class ModelParamsHist:
 
         return self
 
-    def get_history(self):
+    @ezr.cached_container
+    def _df_history(self):
         mm = self.get_mini_model()
         df = mm.tables.model_params.df
+        return df
+
+    def get_history(self):
+        df = self._df_history
         if not df.empty:
             df['time'] = ezr.pandas_utc_seconds_to_time(df.utc_seconds)
         return df
@@ -569,6 +574,7 @@ class ModelParamsHist:
             as_of_day = fleming.floor(as_of, day=1)
             as_of = as_of_day + relativedelta(days=1) - datetime.timedelta(seconds=1)
 
+        # df = self.get_history()
         df = self.get_history()
         if as_of < df.time.min():
             raise ValueError(f'Can only go back to {df.time.min().date()}')
@@ -585,14 +591,25 @@ class ModelParamsHist:
 
 
 class SDRTeam:
-    def __init__(self, model_params=None, use_default_segment_allocation=False, use_pg=False):
+    def __init__(self, model_params=None, model_params_hist=None, use_default_segment_allocation=False, use_pg=False):
+        self._supplied_model_params_hist = model_params_hist
         if model_params is None:
-            model_params = ModelParamsHist(use_pg=use_pg).get_latest()
+            model_params = self.model_params_hist.get_latest()
         self.params = deepcopy(model_params)
         if use_default_segment_allocation:
             self.params.segment_allocation = self.params.default_segment_allocation
         self.start_date = min([r['date'] for r in self.hiring_plan])
         self.naive_start_date = self.start_date.replace(tzinfo=None)
+        self.use_pg = use_pg
+
+    @ezr.cached_property
+    def model_params_hist(self):
+        if self._supplied_model_params_hist:
+            return self._supplied_model_params_hist
+        else:
+            return ModelParamsHist(use_pg=self.use_pg)
+
+
 
     @property
     def hiring_plan(self):
@@ -700,7 +717,14 @@ class SDRTeam:
 
 
 class Deals:
-    def __init__(self, starting=None, ending_exclusive=None, include_sales_expansion=True, model_params=None, use_pg=False):
+    def __init__(
+            self,
+            starting=None,
+            ending_exclusive=None,
+            include_sales_expansion=True,
+            model_params=None,
+            use_pg=False,
+            model_params_hist=None):
         import pandas as pd
         today = fleming.floor(datetime.datetime.now(), day=1)
         next_year = today + relativedelta(years=1)
@@ -712,16 +736,23 @@ class Deals:
         self.starting = pd.Timestamp(starting)
         self.ending_exclusive = pd.Timestamp(ending_exclusive)
         self._supplied_model_params = model_params
+        self._supplied_model_params_hist = model_params_hist
         self.include_sales_expansion = include_sales_expansion
         self.use_pg = use_pg
+
+    @ezr.cached_property
+    def model_params_hist(self):
+        if self._supplied_model_params_hist:
+            return self._supplied_model_params_hist
+        else:
+            return ModelParamsHist(use_pg=self.use_pg)
 
     @ezr.cached_property
     def model_params(self):
         if self._supplied_model_params is not None:
             mp = self._supplied_model_params
         else:
-            mph = ModelParamsHist(use_pg=self.use_pg)
-            mp = mph.get_latest(as_of=self.starting)
+            mp = self.model_params_hist.get_latest(as_of=self.starting)
 
         return mp
 
@@ -764,7 +795,7 @@ class Deals:
 
     def _get_creation_functions(self):
         creation_function_list = []
-        sdr = SDRTeam(self.model_params, use_pg=self.use_pg)
+        sdr = SDRTeam(self.model_params, use_pg=self.use_pg, model_params_hist=self.model_params_hist)
 
         def non_zero_factory(w, alloc):
             def gamma_w(t):
