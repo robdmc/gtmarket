@@ -197,17 +197,28 @@ class PipeStats(ezr.pickle_cache_mixin):
         else:
             self.history_delta = self.DEFAULT_HISTORY_DELTA
 
-    def enable_pickle_cache(self):
-        self.loader.enable_pickle_cache()
-        self.opp_history_loader.enable_pickle_cache()
-        self.op.enable_pickle_cache()
-        super().enable_pickle_cache()
+    @classmethod
+    def enable_pickle_cache(cls):
+        import gtmarket as gtm
+        gtm.OppLoader.enable_pickle_cache()
+        gtm.OppHistoryLoader.enable_pickle_cache()
+        gtm.OrderProducts.enable_pickle_cache()
+        for base in cls.__bases__:
+            if hasattr(base, 'enable_pickle_cache'):
+                base.enable_pickle_cache()
 
-    def disable_pickle_cache(self):
-        self.loader.disable_pickle_cache()
-        self.opp_history_loader.disable_pickle_cache()
-        self.op.disable_pickle_cache()
-        super().disable_pickle_cache()
+
+    @classmethod
+    def disable_pickle_cache(cls):
+        import gtmarket as gtm
+        gtm.OppLoader.disable_pickle_cache()
+        gtm.OppHistoryLoader.disable_pickle_cache()
+        gtm.OrderProducts.disable_pickle_cache()
+
+        for base in cls.__bases__:
+            if hasattr(base, 'disable_pickle_cache'):
+                base.disable_pickle_cache()
+
 
     def _process_opp_frame(self, df):
         # Fix open opps with past close dates
