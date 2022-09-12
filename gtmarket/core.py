@@ -997,7 +997,7 @@ class OrderProducts(ezr.pickle_cache_mixin):
         to catch multiple small intervals.
         """
         # Loop until convergence or timeout
-        for nn in range(10):
+        for nn in range(50):
             # Compute date diffs by taking differences between consecutive event dates
             batch.loc[:, 'day_delta'] = batch.date.diff().dt.days
 
