@@ -10,6 +10,8 @@ import easier as ezr
 import fleming
 from .core import OppLoader, PipeStats, OrderProducts
 
+USE_PG = True
+
 
 # Utility function to make sure to blobs are equal
 def equal(v1, v2):
@@ -522,7 +524,7 @@ class ModelParamsHist:
         '/Users/rob/Dropbox/ambition_stuff/sales_predictor_param_history/param_history2.sqlite'
     )
 
-    def __init__(self, sqlite_file=None, use_pg=False):
+    def __init__(self, sqlite_file=None, use_pg=USE_PG):
         if sqlite_file is None:
             sqlite_file = self.DEFAULT_HISTORY_FILE
         self.sqlite_file = sqlite_file
@@ -591,7 +593,7 @@ class ModelParamsHist:
 
 
 class SDRTeam:
-    def __init__(self, model_params=None, model_params_hist=None, use_default_segment_allocation=False, use_pg=False):
+    def __init__(self, model_params=None, model_params_hist=None, use_default_segment_allocation=False, use_pg=USE_PG):
         self._supplied_model_params_hist = model_params_hist
         if model_params is None:
             model_params = self.model_params_hist.get_latest()
@@ -723,7 +725,7 @@ class Deals:
             ending_exclusive=None,
             include_sales_expansion=True,
             model_params=None,
-            use_pg=False,
+            use_pg=USE_PG,
             model_params_hist=None):
         import pandas as pd
         today = fleming.floor(datetime.datetime.now(), day=1)
