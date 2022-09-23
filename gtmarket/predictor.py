@@ -519,6 +519,38 @@ class ModelParams(ezr.BlobMixin):
         return new_blob
 
 
+class GTMTranslator:
+    """
+    A class to move GTM data from postgres to sqlite and back.
+    Uses the postgres creds in the environment
+    """
+    def __init__(self, local_file='/tmp/gtm_temp.sqlite'):
+        self.local_file = local_file
+
+    def _move_tables(self, *, source, target):
+        for table_name in source.table_names:
+            source_table = getattr(source.tables, table_name)
+            df = source_table.df
+            df = df.drop('id', axis=1)
+            target.create(table_name, df)
+
+    def postgres_to_sqlite(self):
+        """
+        Move data from postgres to sqlite
+        """
+        source = ezr.MiniModelPG(overwrite=False, read_only=True)
+        target = ezr.MiniModelSqlite(file_name=self.local_file, overwrite=True, read_only=False)
+        self._move_tables(source=source, target=target)
+
+    def sqlite_to_postgres(self):
+        """
+        Move data from sqlite to postgres
+        """
+        source = ezr.MiniModelSqlite(file_name=self.local_file, overwrite=False, read_only=True)
+        target = ezr.MiniModelPG(overwrite=True, read_only=False)
+        self._move_tables(source=source, target=target)
+
+
 class ModelParamsHist:
     DEFAULT_HISTORY_FILE = (
         '/Users/rob/Dropbox/ambition_stuff/sales_predictor_param_history/param_history2.sqlite'

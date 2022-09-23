@@ -40,3 +40,4 @@ class API:
     ModelParamsHist = Importable('gtmarket.predictor', 'ModelParamsHist')
     SDRTeam = Importable('gtmarket.predictor', 'SDRTeam')
     Deals = Importable('gtmarket.predictor', 'Deals')
+    GTMTranslator = Importable('gtmarket.predictor', 'GTMTranslator')
