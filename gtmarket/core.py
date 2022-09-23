@@ -69,7 +69,7 @@ class OppLoader(ezr.pickle_cache_mixin):
             'meeting_occurred_on',
         ]
         for col in date_cols:
-            df.loc[:, col] = df.loc[:, col].astype(np.datetime64)
+            df[col] = df[col].astype(np.datetime64)
 
         # Ensure no future opps included
         df = df[df.created_date < (self.today + datetime.timedelta(days=1))]
@@ -371,7 +371,7 @@ class PipeStats(ezr.pickle_cache_mixin):
 
         # Fake ACV to be opp_count based on value
         if value in ['num_sals', 'num_sqls', 'num_deals']:
-            df.loc[:, 'acv'] = 1
+            df['acv'] = 1
 
         # Set the date based on value
         date_field_mapper = {
@@ -823,13 +823,13 @@ class OrderProducts(ezr.pickle_cache_mixin):
                 'payment_terms',
                 'market_segment',
             ]
-        ).sum().reset_index()
+        ).sum(numeric_only=True).reset_index()
 
         # Uncommitted orders don't mean anything
         df = df[df.order_type != 'Uncommitted']
 
         # Change pilots to int
-        df.loc[:, 'pilot'] = df.pilot.astype(int)
+        df['pilot'] = df.pilot.astype(int)
 
         return df
 
@@ -1047,7 +1047,7 @@ class OrderProducts(ezr.pickle_cache_mixin):
 
         # Collapse all events that occure within a grace period of one another
         if collapse:
-            df = df.groupby(by='account_id').apply(self._iterative_collapse)
+            df = df.groupby(by='account_id', group_keys=False).apply(self._iterative_collapse)
 
             # Patch up start/end dates to match with collapse
             ind = df[(df.event == 'order_created') & (df.date != df.order_start_date)].index
@@ -1088,7 +1088,7 @@ class OrderProducts(ezr.pickle_cache_mixin):
 
         # For each account, you care about the latest time any corresponding
         # order was modified
-        df = df.groupby(by='account_id').apply(process_batch)
+        df = df.groupby(by='account_id', group_keys=False).apply(process_batch)
 
         def summarize_batch(batch):
             """
@@ -1161,7 +1161,8 @@ class OrderProducts(ezr.pickle_cache_mixin):
                 latest_event['outcome'] = 'churned'
                 batch.iloc[-1, :] = latest_event
             return batch
-        df = df.groupby(by=['account_name', 'market_segment', 'account_id']).apply(label_terminal_event)
+        df = df.groupby(
+            by=['account_name', 'market_segment', 'account_id'], group_keys=False).apply(label_terminal_event)
 
         # Don't want future reduced or churned events marked as such until they actually happen
         ind = df[df.outcome.isin(['churned', 'reduced']) & (df.date > self.today)].index

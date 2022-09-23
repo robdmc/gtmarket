@@ -362,7 +362,7 @@ class ModelParams(ezr.BlobMixin):
                     df_list.append(dfa.reset_index())
 
             dfc = pd.concat(df_list, axis=0, ignore_index=True, sort=False)
-            df = dfc.groupby(by='date').sum().sort_index()
+            df = dfc.groupby(by='date').sum(numeric_only=True).sort_index()
 
         # I will need a reference to "yesterday" in the fitting
         yesterday = pipe_stats_obj.today - relativedelta(days=1)
