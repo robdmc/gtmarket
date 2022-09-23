@@ -643,8 +643,6 @@ class SDRTeam:
         else:
             return ModelParamsHist(use_pg=self.use_pg)
 
-
-
     @property
     def hiring_plan(self):
         return self.params.hiring_plan

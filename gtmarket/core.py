@@ -207,7 +207,6 @@ class PipeStats(ezr.pickle_cache_mixin):
             if hasattr(base, 'enable_pickle_cache'):
                 base.enable_pickle_cache()
 
-
     @classmethod
     def disable_pickle_cache(cls):
         import gtmarket as gtm
@@ -218,7 +217,6 @@ class PipeStats(ezr.pickle_cache_mixin):
         for base in cls.__bases__:
             if hasattr(base, 'disable_pickle_cache'):
                 base.disable_pickle_cache()
-
 
     def _process_opp_frame(self, df):
         # Fix open opps with past close dates
