@@ -870,7 +870,7 @@ class OrderProducts(ezr.pickle_cache_mixin):
         then = now - relativedelta(months=months)
 
         # Get all orders and standardize them
-        df = self.df_orders[['account_id', 'order_start_date', 'order_ends', 'mrr', 'market_segment']]
+        df = self.df_orders[['account_id', 'order_start_date', 'order_ends', 'mrr', 'market_segment']].copy()
         df.loc[:, 'market_segment'] = [ezr.slugify(s) for s in df.market_segment]
 
         # Create two frames.  One for "now" and one for "then"
