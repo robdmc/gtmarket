@@ -551,7 +551,9 @@ class GTMTranslator:
         self._move_tables(source=source, target=target)
 
 
-class ModelParamsHist:
+class ModelParamsHist(ezr.pickle_cache_mixin):
+    pkc = ezr.pickle_cache_state('reset')
+
     DEFAULT_HISTORY_FILE = (
         '/Users/rob/Dropbox/ambition_stuff/sales_predictor_param_history/param_history2.sqlite'
     )
@@ -583,16 +585,13 @@ class ModelParamsHist:
 
         return self
 
-    @ezr.cached_container
+    @ezr.pickle_cache_container()
     def _df_history(self):
         mm = self.get_mini_model()
         df = mm.tables.model_params.df
-        return df
-
-    def get_history(self):
-        df = self._df_history
         if not df.empty:
             df['time'] = ezr.pandas_utc_seconds_to_time(df.utc_seconds)
+
         return df
 
     def get_latest(self, as_of=None, strict=False, use_last_of_day=True):
@@ -608,8 +607,7 @@ class ModelParamsHist:
             as_of_day = fleming.floor(as_of, day=1)
             as_of = as_of_day + relativedelta(days=1) - datetime.timedelta(seconds=1)
 
-        # df = self.get_history()
-        df = self.get_history()
+        df = self._df_history
         if as_of < df.time.min():
             raise ValueError(f'Can only go back to {df.time.min().date()}')
         df = df[df.time <= as_of]
