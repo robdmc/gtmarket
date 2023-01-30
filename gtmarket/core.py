@@ -283,7 +283,7 @@ class PipeStats(ezr.pickle_cache_mixin):
         df = df[(df.order_start_date >= starting) & (df.order_start_date < ending)].reset_index(drop=True)
 
         # Compute ACV and return
-        df['acv'] = df.mrr.values * np.minimum(df.months, 12)
+        df['acv'] = df.mrr.values * np.minimum(df.order_months, 12)
         return df
 
     @property
@@ -787,7 +787,7 @@ class OrderProducts(ezr.pickle_cache_mixin):
             'order_ends',
             'last_modified_date',
             'created_date',
-            'months',
+            # 'order_months',
             'mrr',
             'payment_terms',
             'market_segment',
@@ -817,7 +817,7 @@ class OrderProducts(ezr.pickle_cache_mixin):
                 'order_ends',
                 'last_modified_date',
                 'created_date',
-                'months',
+                # 'order_months',
                 'payment_terms',
                 'market_segment',
             ]
@@ -961,7 +961,7 @@ class OrderProducts(ezr.pickle_cache_mixin):
                 'order_ends',
                 'last_modified_date',
                 'created_date',
-                'months',
+                # 'order_months',
                 'mrr',
                 'payment_terms',
                 'market_segment',

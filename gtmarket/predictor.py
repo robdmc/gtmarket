@@ -585,7 +585,7 @@ class ModelParamsHist(ezr.pickle_cache_mixin):
 
         return self
 
-    @ezr.pickle_cache_container()
+    @ezr.pickle_cached_container()
     def _df_history(self):
         mm = self.get_mini_model()
         df = mm.tables.model_params.df
